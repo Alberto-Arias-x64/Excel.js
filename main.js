@@ -17,6 +17,15 @@ TABLE.addEventListener("click", ({ target }) => {
   const td = target.closest("td")
   if (!td) return
   const { x, y } = td.dataset
-  td.classList.add("selected")
+  const input = td.querySelector("input")
+  const end = input.value.length
+  input.setSelectionRange(end, end)
+  input.focus()
+  input.addEventListener('blur', ({ target }) => {
+    const { x, y } = target.closest("td").dataset
+    if (input.value === STATE[y - 1][x - 1]) return
+    STATE[y - 1][x - 1] = input.value
+    renderTable()
+  }, { once: true })
 })
 renderTable();
