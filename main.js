@@ -5,8 +5,13 @@ const ROWS = 5
 const COLUMNS = 5
 
 const range = (times = 0) => new Array(times).fill(0).map((_, i) => i)
-
 const STATE = range(ROWS).map(() => range(COLUMNS + 1).map(() => ({ value: '', input: '' })))
+
+function replaceValues(value) {
+  value = value.replace(/(\w)(\d)/, (_, i, j) => STATE[j - 1][i.charCodeAt(0) - 65].value)
+  if (/\w\d/.test(value)) return replaceValues(value)
+  return value
+}
 
 function renderTable() {
   TABLE_HEAD.innerHTML = `<tr>${range(COLUMNS + 1).map((i) => `<th>${i === 0 ? '' : String.fromCharCode(64 + i)}</th>`).join('')}</tr>`
@@ -16,7 +21,11 @@ function renderTable() {
 function computeValue(value = '') {
   if (!value.startsWith('=')) return value
   const op = value.substring(1)
-  return eval(op)
+  try {
+    return eval(replaceValues(op)).toString()
+  } catch (error) {
+    return `!ERROR: ${error.message}`
+  }
 }
 
 TABLE.addEventListener("click", ({ target }) => {
@@ -29,7 +38,7 @@ TABLE.addEventListener("click", ({ target }) => {
   input.focus()
   input.addEventListener('blur', ({ target }) => {
     const { x, y } = target.closest("td").dataset
-    if (input.value === STATE[y - 1][x - 1]) return
+    if (input.value === STATE[y - 1][x - 1].input) return
     STATE[y - 1][x - 1].value = computeValue(input.value)
     STATE[y - 1][x - 1].input = input.value
     renderTable()
