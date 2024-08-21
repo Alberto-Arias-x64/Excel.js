@@ -112,7 +112,8 @@ document.addEventListener("keydown", ({ key }) => {
 document.addEventListener("copy", event => {
   event.preventDefault()
   const data = []
-  STATE.forEach(row => row.forEach(({ value }, i) => i === columnSelected - 1 && value && data.push(value)))
+  if (columnSelected) STATE.forEach(row => row.forEach(({ value }, i) => i === columnSelected - 1 && value && data.push(value)))
+  if (rowSelected) STATE.forEach((row, i) => i === rowSelected - 1 && row.forEach(({ value }) => value && data.push(value)))
   event.clipboardData.setData('text/plain', data.join('\n'))
 })
 
