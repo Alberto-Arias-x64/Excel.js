@@ -1,7 +1,7 @@
 const TABLE = document.querySelector("table")
 const TABLE_HEAD = document.querySelector("thead")
 const TABLE_BODY = document.querySelector("tbody")
-const ROWS = 10
+const ROWS = 30
 const COLUMNS = 10
 
 let columnSelected = null
