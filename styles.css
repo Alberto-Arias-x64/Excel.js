@@ -19,6 +19,11 @@ table {
       border: 1px solid silver;
       padding: 4px;
       vertical-align: middle;
+      cursor: pointer;
+
+      &.selected {
+        background-color: blue;
+      }
     }
   }
 
@@ -55,6 +60,10 @@ table {
         width: fit-content;
         text-align: center;
         width: 30px;
+      }
+
+      &.selected{
+        background-color: lightskyblue;
       }
     }
   }
