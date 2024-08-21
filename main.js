@@ -52,6 +52,7 @@ TABLE.addEventListener("click", ({ target }) => {
   input.setSelectionRange(end, end)
   input.focus()
   clearSelection()
+  columnSelected = null
   input.addEventListener('blur', () => {
     if (input.value === STATE[y - 1][x - 1].input) return
     STATE[y - 1][x - 1].value = computeValue(input.value)
@@ -70,6 +71,29 @@ TABLE_HEAD.addEventListener("click", ({ target }) => {
   clearSelection()
   document.querySelectorAll(`*[data-x="${columnSelected}"]`).forEach(td => td.classList.add("selected"))
 })
+
+document.addEventListener("keydown", ({ key }) => {
+  if (key === "Backspace" && columnSelected) {
+    STATE.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (x === columnSelected - 1) {
+          cell.value = ''
+          cell.input = ''
+        }
+      })
+    })
+    recalculate()
+    renderTable()
+  }
+})
+
+document.addEventListener("copy", event => {
+  event.preventDefault()
+  const data = []
+  STATE.forEach(row => row.forEach(({ value }, i) => i === columnSelected - 1 && value && data.push(value)))
+  event.clipboardData.setData('text/plain', data.join('\n'))
+})
+
 
 /* TABLE_BODY.addEventListener("click", ({ target }) => {
   const td = target.closest("td")
