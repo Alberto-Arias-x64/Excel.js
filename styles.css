@@ -60,6 +60,11 @@ table {
         width: fit-content;
         text-align: center;
         width: 30px;
+        cursor: pointer;
+
+        &.selected{
+          background-color: blue;
+        }
       }
 
       &.selected{

@@ -20,7 +20,7 @@ function replaceValues(value) {
 
 function renderTable() {
   TABLE_HEAD.innerHTML = `<tr>${range(COLUMNS + 1).map((i) => `<th data-x="${i}" >${i === 0 ? '' : String.fromCharCode(64 + i)}</th>`).join('')}</tr>`
-  TABLE_BODY.innerHTML = `${range(ROWS).map((i) => `<tr>${range(COLUMNS + 1).map((j) => `<td data-y="${i + 1}" data-x="${j}"  >${j === 0 ? i + 1 : `<span>${STATE[i][j - 1].value}</span> <input type="text" name="${i + ' ' + j}" value="${STATE[i][j - 1].input}">`}</td>`).join("")}</tr>`).join('')}`
+  TABLE_BODY.innerHTML = `${range(ROWS).map((i) => `<tr>${range(COLUMNS + 1).map((j) => `<td data-y="${i + 1}" data-x="${j}"  >${j === 0 ? i + 1 : `<span>${STATE[i][j - 1].value}</span> <input type="text" name="${i + ' ' + j}" value="${STATE[i][j - 1].input}" autocomplete="off">`}</td>`).join("")}</tr>`).join('')}`
 }
 
 function computeValue(value = '') {
@@ -53,6 +53,7 @@ TABLE.addEventListener("click", ({ target }) => {
   input.focus()
   clearSelection()
   columnSelected = null
+  rowSelected = null
   input.addEventListener('blur', () => {
     if (input.value === STATE[y - 1][x - 1].input) return
     STATE[y - 1][x - 1].value = computeValue(input.value)
@@ -72,16 +73,37 @@ TABLE_HEAD.addEventListener("click", ({ target }) => {
   document.querySelectorAll(`*[data-x="${columnSelected}"]`).forEach(td => td.classList.add("selected"))
 })
 
+TABLE_BODY.addEventListener("click", ({ target }) => {
+  const td = target.closest("td")
+  if (!td) return
+  const { y } = td.dataset
+  rowSelected = Number(y)
+  clearSelection()
+  document.querySelectorAll(`*[data-y="${rowSelected}"]`).forEach(td => td.classList.add("selected"))
+})
+
 document.addEventListener("keydown", ({ key }) => {
-  if (key === "Backspace" && columnSelected) {
-    STATE.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        if (x === columnSelected - 1) {
-          cell.value = ''
-          cell.input = ''
+  if (key === "Backspace") {
+    if (columnSelected) {
+      STATE.forEach((row) => {
+        row.forEach((cell, x) => {
+          if (x === columnSelected - 1) {
+            cell.value = ''
+            cell.input = ''
+          }
+        })
+      })
+    }
+    else if (rowSelected) {
+      STATE.forEach((row, y) => {
+        if (y === rowSelected - 1) {
+          row.forEach((cell) => {
+            cell.value = ''
+            cell.input = ''
+          })
         }
       })
-    })
+    }
     recalculate()
     renderTable()
   }
@@ -93,14 +115,5 @@ document.addEventListener("copy", event => {
   STATE.forEach(row => row.forEach(({ value }, i) => i === columnSelected - 1 && value && data.push(value)))
   event.clipboardData.setData('text/plain', data.join('\n'))
 })
-
-
-/* TABLE_BODY.addEventListener("click", ({ target }) => {
-  const td = target.closest("td")
-  if (!td) return
-  const { y, x } = td.dataset
-  rowSelected = y
-  renderTable()
-}) */
 
 renderTable();
